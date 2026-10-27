@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import { AtlasGlobe } from "./atlas-globe";
 import { Magnetic } from "./magnetic";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+const subscribeNoop = () => () => {};
 const lineOne = ["Map", "your", "way", "through"];
 const lineTwo = ["computer", "science."];
 
@@ -32,6 +33,11 @@ export function Hero() {
   const globeY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    () => true,
+    () => false,
+  );
 
   return (
     <section ref={ref} id="top" className="relative flex min-h-svh items-center overflow-hidden pt-28 pb-16">
@@ -45,7 +51,7 @@ export function Hero() {
       />
 
       <motion.div
-        style={{ scale: globeScale, y: globeY, opacity: fade }}
+        style={mounted ? { scale: globeScale, y: globeY, opacity: fade } : undefined}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1.8, ease }}
@@ -54,7 +60,7 @@ export function Hero() {
         <AtlasGlobe />
       </motion.div>
 
-      <motion.div style={{ y: textY, opacity: fade }} className="relative z-10 mx-auto w-full max-w-6xl px-6">
+      <motion.div style={mounted ? { y: textY, opacity: fade } : undefined} className="relative z-10 mx-auto w-full max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
